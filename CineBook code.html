@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CineBook – Movie Ticket Booking Demo</title>
+
+<style>
+:root {
+    box-sizing: border-box;
+    --bg: #f6f5f2;
+    --card: #fff;
+    --ink: #1c1b22;
+    --mut: #6b6a75;
+    --line: #dcdad3;
+    --acc: #c0392b;
+    --acc-ink: #fff;
+    --ok: #1e8449;
+    --bad: #b03a2e;
+    --seat: #e9e7e1;
+    --sel: #c0392b;
+    --bk: #9b9aa3;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --bg: #15141a;
+        --card: #201f27;
+        --ink: #f1f0f4;
+        --mut: #a3a2ad;
+        --line: #37363f;
+        --acc: #e5594a;
+        --acc-ink: #fff;
+        --ok: #58d68d;
+        --bad: #ec7063;
+        --seat: #34333c;
+        --sel: #e5594a;
+        --bk: #55545e;
+    }
+}
+
+:root[data-theme="dark"] {
+    --bg: #15141a;
+    --card: #201f27;
+    --ink: #f1f0f4;
+    --mut: #a3a2ad;
+    --line: #37363f;
+    --acc: #e5594a;
+    --acc-ink: #fff;
+    --ok: #58d68d;
+    --bad: #ec7063;
+    --seat: #34333c;
+    --sel: #e5594a;
+    --bk: #55545e;
+}
+
+*, *::before, *::after {
+    box-sizing: inherit;
+}
+
+html, body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+    background: var(--card);
+    position: sticky;
+    top: 0;
+    z-index: 5;
+}
+
+.logo {
+    font-weight: 800;
+    font-size: 20px;
+    color: var(--acc);
+}
+
+nav {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.demo {
+    background: var(--acc);
+    color: var(--acc-ink);
+    text-align: center;
+    font-size: 12px;
+    padding: 4px 8px;
+}
+
+main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 16px;
+}
+
+h2 {
+    margin: 8px 0 12px;
+    font-size: 20px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px;
+}
+
+.poster {
+    height: 90px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: flex-end;
+    padding: 8px;
+    color: #fff;
+    font-weight: 700;
+    font-size: 13px;
+}
+
+button, input {
+    font: inherit;
+    color: inherit;
+}
+
+button {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+button.p {
+    background: var(--acc);
+    color: var(--acc-ink);
+    border-color: var(--acc);
+}
+
+button.on {
+    border-color: var(--acc);
+    outline: 2px solid var(--acc);
+}
+
+button:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+
+button:focus-visible, input:focus-visible {
+    outline: 2px solid var(--acc);
+    outline-offset: 2px;
+}
+
+input[type=text],
+input[type=email],
+input[type=password] {
+    width: 100%;
+    padding: 9px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--bg);
+    margin: 4px 0 10px;
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 8px 0;
+}
+
+.mut {
+    color: var(--mut);
+    font-size: 13px;
+}
+
+.msg {
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin: 0 0 12px;
+    border: 1px solid var(--line);
+}
+
+.msg.bad {
+    color: var(--bad);
+    border-color: var(--bad);
+}
+
+.msg.ok {
+    color: var(--ok);
+    border-color: var(--ok);
+}
+
+.screen {
+    height: 6px;
+    border-radius: 6px;
+    background: var(--line);
+    margin: 14px auto 18px;
+    width: 70%;
+}
+
+.map {
+    overflow-x: auto;
+    padding-bottom: 6px;
+}
+
+.sr {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    justify-content: center;
+    margin: 5px 0;
+    min-width: 420px;
+}
+
+.rl {
+    width: 18px;
+    font-size: 12px;
+    color: var(--mut);
+}
+
+.s {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border-radius: 6px 6px 3px 3px;
+    background: var(--seat);
+    font-size: 11px;
+}
+
+.s.sel {
+    background: var(--sel);
+    color: #fff;
+    border-color: var(--sel);
+}
+
+.s.bk {
+    background: var(--bk);
+    cursor: not-allowed;
+    opacity: .5;
+}
+
+.leg {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: var(--mut);
+    margin: 8px 0;
+}
+
+.sw {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    vertical-align: middle;
+    margin-right: 4px;
+    background: var(--seat);
+    border: 1px solid var(--line);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+td {
+    padding: 5px 0;
+    border-bottom: 1px solid var(--line);
+}
+
+td:last-child {
+    text-align: right;
+}
+
+.tk {
+    border: 2px dashed var(--acc);
+    border-radius: 14px;
+    padding: 16px;
+    background: var(--card);
+}
+
+.big {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: .5px;
+    color: var(--acc);
+}
+
+.tag {
+    display: inline-block;
+    font-size: 11px;
+    padding: 1px 8px;
+    border-radius: 99px;
+    border: 1px solid var(--line);
+}
+</style>
+</head>
+
+<body>
+
+<div class="demo">
+    Demo project · payment is SIMULATED · no real card/UPI data is collected · data stays in this browser
+</div>
+
+<header>
+    <span class="logo">🎬 CineBook</span>
+    <nav id="nav"></nav>
+</header>
+
+<main id="app"></main>
+
+<script>
+(function(){
+
+var MOVIES = [
+    {
+        id: 1,
+        t: 'Ramayana',
+        l: 'Hindi',
+        g: 'Epic / Mythology',
+        s: 'An epic retelling of the story of Prince Rama, his exile and the battle to rescue Sita.',
+        k: '#a04000'
+    },
+    {
+        id: 2,
+        t: 'The Hunger Games',
+        l: 'English',
+        g: 'Dystopian / Thriller',
+        s: 'In the nation of Panem, young tributes are forced to fight for survival in a televised arena.',
+        k: '#1e8449'
+    },
+    {
+        id: 3,
+        t: 'Spider-Man: Brand New Day',
+        l: 'English',
+        g: 'Superhero / Action',
+        s: 'Peter Parker swings into a new chapter as Spider-Man.',
+        k: '#c0392b'
+    },
+    {
+        id: 4,
+        t: 'Avengers: Doomsday',
+        l: 'English',
+        g: 'Superhero / Action',
+        s: 'Earth’s mightiest heroes face a new global threat.',
+        k: '#34495e',
+        up: 'December 2026'
+    }
+];
+
+var THEATRES = [
+    'CineMax Orion, Rajajinagar',
+    'StarPlex Garuda, MG Road',
+    'Galaxy Cinemas, Whitefield'
+];
+
+var TIMES = ['10:30', '13:45', '16:30', '19:15', '22:15'];
+
+var ROWS = 'ABCDEFGHIJ';
+var COLS = 10;
+var FEE = 25;
+var MAXS = 6;
+var HOLD = 300000;
+
+function cls(r) {
+    return 'ABCD'.indexOf(r) >= 0
+        ? ['Silver', 180]
+        : 'EFGH'.indexOf(r) >= 0
+        ? ['Gold', 250]
+        : ['Platinum', 380];
+}
+
+var S = {
+    view: 'login',
+    user: null,
+    m: null,
+    th: null,
+    dt: null,
+    tm: null,
+    seats: [],
+    pm: 'UPI',
+    hold: 0,
+    msg: null,
+    last: null
+};
+
+var DB = {
+    bookings: [],
+    seq: {}
+};
+
+function load() {
+    try {
+        var x = localStorage.getItem('cinebook-v2');
+        if (x) DB = JSON.parse(x);
+
+        var u = localStorage.getItem('cinebook-user');
+        if (u) {
+            S.user = u;
+            S.view = 'movies';
+        }
+    } catch(e) {}
+}
+
+function save() {
+    try {
+        localStorage.setItem('cinebook-v2', JSON.stringify(DB));
+    } catch(e) {}
+}
+
+function sync() {
+    try {
+        var x = localStorage.getItem('cinebook-v2');
+        if (x) DB = JSON.parse(x);
+    } catch(e) {}
+}
+
+function h(str) {
+    var n = 0;
+    for (var i = 0; i < str.length; i++)
+        n = (n * 31 + str.charCodeAt(i)) | 0;
+    return Math.abs(n);
+}
+
+function key() {
+    return S.m + '|' + S.th + '|' + S.dt + '|' + S.tm;
+}
+
+function booked(k) {
+    var s = {};
+
+    ROWS.split('').forEach(function(r) {
+        for (var c = 1; c <= COLS; c++) {
+            if (h(k + r + c) % 6 === 0)
+                s[r + c] = 1;
+        }
+    });
+
+    DB.bookings.forEach(function(b) {
+        if (b.status === 'CONFIRMED' && b.key === k)
+            b.seats.forEach(function(x) {
+                s[x] = 1;
+            });
+    });
+
+    return s;
+}
+
+function pad(n) {
+    return n < 10 ? '0' + n : '' + n;
+}
+
+function iso(d) {
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+}
+
+function dates() {
+    var a = [], t = new Date();
+
+    for (var i = 0; i < 7; i++) {
+        var d = new Date(t.getFullYear(), t.getMonth(), t.getDate() + i);
+        a.push(iso(d));
+    }
+
+    return a;
+}
+
+function when(dt, tm) {
+    return new Date(dt + 'T' + tm + ':00');
+}
+
+function fd(dt) {
+    return when(dt, '12:00').toLocaleDateString('en-IN', {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short'
+    });
+}
+
+function esc(s) {
+    return String(s).replace(/[&<>"]/g, function(c) {
+        return {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;'
+        }[c];
+    });
+}
+
+function mv(id) {
+    return MOVIES.filter(function(m) {
+        return m.id === id;
+    })[0];
+}
+
+function price(seats) {
+    var t = 0;
+
+    seats.forEach(function(x) {
+        t += cls(x[0])[1];
+    });
+
+    return {
+        tix: t,
+        fee: seats.length * FEE,
+        total: t + seats.length * FEE
+    };
+}
+
+function refund(b) {
+    var hrs = (when(b.dt, b.tm) - new Date()) / 36e5;
+    var tix = b.total - b.seats.length * FEE;
+
+    if (hrs > 4)
+        return {
+            ok: true,
+            amt: tix,
+            rule: 'More than 4 hours before show: ticket amount refunded (fee not refunded)'
+        };
+
+    if (hrs >= 2)
+        return {
+            ok: true,
+            amt: tix * 0.5,
+            rule: '2–4 hours before show: 50% of ticket amount refunded'
+        };
+
+    return {
+        ok: false,
+        amt: 0,
+        rule: 'Less than 2 hours before show: cancellation not allowed'
+    };
+}
+
+function msgHtml() {
+    if (!S.msg) return '';
+
+    var m = S.msg;
+    S.msg = null;
+
+    return '<div class="msg ' + m[0] + '" role="status">' +
+        esc(m[1]) + '</div>';
+}
+
+function nav() {
+    var n = document.getElementById('nav');
+
+    n.innerHTML = S.user
+        ? '<button data-a="go" data-v="movies">Movies</button>' +
+          '<button data-a="go" data-v="history">My bookings</button>' +
+          '<button data-a="logout">Log out (' + esc(S.user) + ')</button>'
+        : '';
+}
+
+function render() {
+    sync();
+    nav();
+
+    var a = document.getElementById('app');
+    var v = S.view;
+    var o = '';
+
+    if (v === 'login') o = vLogin();
+    else if (v === 'movies') o = vMovies();
+    else if (v === 'detail') o = vDetail();
+    else if (v === 'show') o = vShow();
+    else if (v === 'seats') o = vSeats();
+    else if (v === 'pay') o = vPay();
+    else if (v === 'ticket') o = vTicket();
+    else if (v === 'history') o = vHistory();
+
+    a.innerHTML = o;
+
+    if (v === 'pay') tick();
+
+    window.scrollTo(0, 0);
+}
+
+function vLogin() {
+    return msgHtml() +
+        '<div class="card" style="max-width:380px;margin:20px auto">' +
+        '<h2>Log in</h2>' +
+        '<label>Email<input type="email" id="em" autocomplete="off" placeholder="you@example.com"></label>' +
+        '<label>Password<input type="password" id="pw" autocomplete="off" placeholder="min 4 characters"></label>' +
+        '<button class="p" data-a="login">Log in / register</button>' +
+        '<p class="mut">Demo login: any valid email and a password of 4+ characters. The password is checked but never stored.</p>' +
+        '</div>';
+}
+
+function mcard(m) {
+    return '<div class="card">' +
+        '<div class="poster" style="background:' + m.k + '">' + esc(m.g) + '</div>' +
+        '<strong>' + esc(m.t) + '</strong>' +
+        '<div class="mut">' + esc(m.l) + '</div>' +
+        '<div class="row">' +
+        (m.up
+            ? '<span class="tag">Releases ' + esc(m.up) + '</span><button disabled>Coming soon</button>'
+            : '<button class="p" data-a="movie" data-v="' + m.id + '">Book</button>') +
+        '</div></div>';
+}
+
+function vMovies() {
+    var now = MOVIES.filter(function(m) { return !m.up; });
+    var up = MOVIES.filter(function(m) { return m.up; });
+
+    return msgHtml() +
+        '<h2>Now showing</h2><div class="grid">' +
+        now.map(mcard).join('') +
+        '</div><h2 style="margin-top:24px">Upcoming</h2><div class="grid">' +
+        up.map(mcard).join('') + '</div>';
+}
+
+function vDetail() {
+    var m = mv(S.m);
+
+    return '<div class="card">' +
+        '<div class="poster" style="background:' + m.k + ';height:120px">' + esc(m.t) + '</div>' +
+        '<h2>' + esc(m.t) + '</h2>' +
+        '<p>' + esc(m.s) + '</p>' +
+        '<p class="mut">Language: ' + esc(m.l) + ' · Genre: ' + esc(m.g) + '</p>' +
+        '<div class="row">' +
+        '<button data-a="go" data-v="movies">Back</button>' +
+        '<button class="p" data-a="go" data-v="show">Choose theatre and show</button>' +
+        '</div></div>';
+}
+
+function vShow() {
+    var now = new Date();
+    var ds = dates();
+
+    var t = THEATRES.map(function(x, i) {
+        return '<button data-a="th" data-v="' + i + '" class="' +
+            (S.th === i ? 'on' : '') + '">' + esc(x) + '</button>';
+    }).join('');
+
+    var d = ds.map(function(x) {
+        return '<button data-a="dt" data-v="' + x + '" class="' +
+            (S.dt === x ? 'on' : '') + '">' + fd(x) + '</button>';
+    }).join('');
+
+    var tm = S.dt
+        ? TIMES.map(function(x) {
+            var past = when(S.dt, x) <= now;
+            return '<button data-a="tm" data-v="' + x + '" ' +
+                (past ? 'disabled' : '') + ' class="' +
+                (S.tm === x ? 'on' : '') + '">' + x + '</button>';
+        }).join('')
+        : '<span class="mut">Pick a date first</span>';
+
+    return msgHtml() +
+        '<h2>' + esc(mv(S.m).t) + '</h2>' +
+        '<div class="card"><strong>1. Theatre</strong><div class="row">' + t +
+        '</div><strong>2. Date (next 7 days)</strong><div class="row">' + d +
+        '</div><strong>3. Show time</strong><div class="row">' + tm +
+        '</div><div class="row">' +
+        '<button data-a="go" data-v="detail">Back</button>' +
+        '<button class="p" data-a="toseats" ' +
+        (S.th !== null && S.dt && S.tm ? '' : 'disabled') +
+        '>View seats</button></div></div>';
+}
+
+function vSeats() {
+    var bk = booked(key());
+    var p = price(S.seats);
+
+    var map = ROWS.split('').map(function(r) {
+        var c = '<div class="sr"><span class="rl">' + r + '</span>';
+
+        for (var i = 1; i <= COLS; i++) {
+            var id = r + i;
+            var b = bk[id];
+            var sel = S.seats.indexOf(id) >= 0;
+
+            c += '<button class="s ' + (b ? 'bk' : sel ? 'sel' : '') +
+                '" ' + (b ? 'disabled' : '') +
+                ' data-a="seat" data-v="' + id +
+                '" aria-label="Seat ' + id + (b ? ' booked' : '') + '">' +
+                i + '</button>';
+        }
+
+        return c + '</div>';
+    }).join('');
+
+    return msgHtml() +
+        '<h2>' + esc(mv(S.m).t) + '</h2>' +
+        '<p class="mut">' + esc(THEATRES[S.th]) + ' · ' + fd(S.dt) + ' · ' + S.tm + '</p>' +
+        '<div class="card"><div class="screen"></div>' +
+        '<div class="mut" style="text-align:center">SCREEN THIS WAY</div>' +
+        '<div class="map">' + map + '</div>' +
+        '<div class="leg">' +
+        '<span><i class="sw"></i>Available</span>' +
+        '<span><i class="sw" style="background:var(--sel)"></i>Selected</span>' +
+        '<span><i class="sw" style="background:var(--bk)"></i>Booked</span>' +
+        '<span>Rows A–D Silver ₹180 · E–H Gold ₹250 · I–J Platinum ₹380</span>' +
+        '</div><p><strong>Selected:</strong> ' +
+        (S.seats.length ? S.seats.join(', ') : 'none') +
+        ' (max ' + MAXS + ')</p>' +
+        '<p>Tickets ₹' + p.tix + ' + fee ₹' + p.fee +
+        ' = <strong>₹' + p.total + '</strong></p>' +
+        '<div class="row"><button data-a="go" data-v="show">Back</button>' +
+        '<button class="p" data-a="topay">Continue to payment</button></div></div>';
+}
+
+function vPay() {
+    var p = price(S.seats);
+
+    return msgHtml() +
+        '<h2>Payment</h2><div class="card">' +
+        '<div class="msg bad" style="color:var(--ink)">' +
+        '<strong>SIMULATED PAYMENT</strong> – no real money, card or UPI details are collected.</div>' +
+        '<table>' +
+        '<tr><td>' + esc(mv(S.m).t) + ' · ' + esc(THEATRES[S.th]) +
+        '</td><td>' + fd(S.dt) + ' ' + S.tm + '</td></tr>' +
+        '<tr><td>Seats</td><td>' + S.seats.join(', ') + '</td></tr>' +
+        '<tr><td>Tickets</td><td>₹' + p.tix + '</td></tr>' +
+        '<tr><td>Convenience fee (₹' + FEE + ' × ' + S.seats.length +
+        ')</td><td>₹' + p.fee + '</td></tr>' +
+        '<tr><td><strong>Total</strong></td><td><strong>₹' + p.total +
+        '</strong></td></tr></table>' +
+        '<div class="row">' +
+        '<button data-a="pm" data-v="UPI" class="' +
+        (S.pm === 'UPI' ? 'on' : '') + '">UPI (simulated)</button>' +
+        '<button data-a="pm" data-v="CARD" class="' +
+        (S.pm === 'CARD' ? 'on' : '') + '">Card (simulated)</button>' +
+        '</div><p class="mut">Seats held for <strong id="cd"></strong></p>' +
+        '<div class="row"><button data-a="seatsback">Back to seats</button>' +
+        '<button class="p" data-a="paygo" data-v="ok">Simulate success</button>' +
+        '<button data-a="paygo" data-v="fail">Simulate failure</button></div></div>';
+}
+
+function vTicket() {
+    var b = S.last;
+
+    return msgHtml() +
+        '<h2>Booking confirmed</h2><div class="tk">' +
+        '<div class="mut">E-TICKET · ' + esc(b.method) + ' (simulated payment)</div>' +
+        '<div class="big">' + b.id + '</div>' +
+        '<h3>' + esc(mv(b.m).t) + '</h3>' +
+        '<div>' + esc(THEATRES[b.th]) + '</div>' +
+        '<div>' + fd(b.dt) + ' · ' + b.tm + '</div>' +
+        '<div>Seats: <strong>' + b.seats.join(', ') + '</strong></div>' +
+        '<div>Total paid (demo): ₹' + b.total + '</div></div>' +
+        '<div class="row"><button data-a="go" data-v="history">My bookings</button>' +
+        '<button class="p" data-a="go" data-v="movies">Book another</button></div>';
+}
+
+function vHistory() {
+    var list = DB.bookings.filter(function(b) {
+        return b.user === S.user;
+    }).slice().reverse();
+
+    return msgHtml() + '<h2>My bookings</h2>' +
+        (list.length
+            ? list.map(function(b) {
+                var r = refund(b);
+                var past = when(b.dt, b.tm) <= new Date();
+
+                return '<div class="card" style="margin-bottom:10px">' +
+                    '<div class="row"><strong>' + b.id + '</strong><span class="tag">' +
+                    b.status + '</span></div>' +
+                    '<div>' + esc(mv(b.m).t) + ' · ' + esc(THEATRES[b.th]) + '</div>' +
+                    '<div class="mut">' + fd(b.dt) + ' ' + b.tm + ' · Seats ' +
+                    b.seats.join(', ') + ' · ₹' + b.total + '</div>' +
+                    (b.status === 'CONFIRMED' && !past
+                        ? '<div class="row"><button data-a="cancel" data-v="' + b.id +
+                          '">Cancel booking</button><span class="mut">' +
+                          (r.ok ? 'Refund now: ₹' + r.amt : 'Cancellation not allowed') +
+                          '</span></div>'
+                        : '') +
+                    (b.refund != null
+                        ? '<div class="mut">Simulated refund: ₹' + b.refund + '</div>'
+                        : '') +
+                    '</div>';
+            }).join('')
+            : '<p class="mut">No bookings yet.</p>');
+}
+
+var timer = null;
+
+function tick() {
+    clearInterval(timer);
+
+    var el = document.getElementById('cd');
+    if (!el) return;
+
+    function u() {
+        var left = S.hold - Date.now();
+
+        if (left <= 0) {
+            clearInterval(timer);
+            S.seats = [];
+            S.msg = ['bad', 'Hold expired after 5 minutes. Seats released. Please select again.'];
+            S.view = 'seats';
+            render();
+            return;
+        }
+
+        var e = document.getElementById('cd');
+        if (e)
+            e.textContent = Math.floor(left / 60000) + ':' +
+                pad(Math.floor(left / 1000) % 60);
+    }
+
+    u();
+    timer = setInterval(u, 1000);
+}
+
+function confirmBooking() {
+    sync();
+
+    var k = key();
+    var bk = booked(k);
+
+    for (var i = 0; i < S.seats.length; i++) {
+        if (bk[S.seats[i]]) {
+            S.msg = ['bad', 'Seat ' + S.seats[i] +
+                ' is no longer available. Please choose again.'];
+            S.seats = [];
+            S.view = 'seats';
+            return false;
+        }
+    }
+
+    var n = (DB.seq[S.dt] || 0) + 1;
+    DB.seq[S.dt] = n;
+
+    var p = price(S.seats);
+
+    var b = {
+        id: 'TKT-' + S.dt.replace(/-/g, '') + '-' + ('000' + n).slice(-4),
+        user: S.user,
+        key: k,
+        m: S.m,
+        th: S.th,
+        dt: S.dt,
+        tm: S.tm,
+        seats: S.seats.slice().sort(),
+        total: p.total,
+        method: S.pm,
+        status: 'CONFIRMED'
+    };
+
+    DB.bookings.push(b);
+    save();
+
+    S.last = b;
+    S.seats = [];
+    S.view = 'ticket';
+
+    return true;
+}
+
+document.addEventListener('click', function(e) {
+    var t = e.target.closest('[data-a]');
+    if (!t || t.disabled) return;
+
+    var a = t.getAttribute('data-a');
+    var v = t.getAttribute('data-v');
+
+    if (a === 'login') {
+        var em = document.getElementById('em').value.trim();
+        var pw = document.getElementById('pw').value;
+
+        if (!/^\S+@\S+\.\S+$/.test(em)) {
+            S.msg = ['bad', 'Enter a valid email address.'];
+        }
+        else if (pw.length < 4) {
+            S.msg = ['bad', 'Password must be at least 4 characters.'];
+        }
+        else {
+            S.user = em;
+            try {
+                localStorage.setItem('cinebook-user', em);
+            } catch(x) {}
+            S.view = 'movies';
+        }
+    }
+
+    else if (a === 'logout') {
+        S.user = null;
+        try {
+            localStorage.removeItem('cinebook-user');
+        } catch(x) {}
+        S.view = 'login';
+    }
+
+    else if (a === 'go') {
+        S.view = v;
+    }
+
+    else if (a === 'movie') {
+        S.m = +v;
+        S.th = null;
+        S.dt = null;
+        S.tm = null;
+        S.seats = [];
+        S.view = 'detail';
+    }
+
+    else if (a === 'th') {
+        S.th = +v;
+        S.seats = [];
+    }
+
+    else if (a === 'dt') {
+        S.dt = v;
+        S.tm = null;
+        S.seats = [];
+    }
+
+    else if (a === 'tm') {
+        S.tm = v;
+        S.seats = [];
+    }
+
+    else if (a === 'toseats') {
+        S.seats = [];
+        S.view = 'seats';
+    }
+
+    else if (a === 'seat') {
+        var i = S.seats.indexOf(v);
+
+        if (i >= 0)
+            S.seats.splice(i, 1);
+        else if (S.seats.length >= MAXS)
+            S.msg = ['bad', 'You can select at most ' + MAXS + ' seats per booking.'];
+        else
+            S.seats.push(v);
+    }
+
+    else if (a === 'topay') {
+        sync();
+
+        if (!S.seats.length) {
+            S.msg = ['bad', 'Select at least one seat.'];
+        }
+        else {
+            var bk = booked(key());
+            var bad = S.seats.filter(function(x) {
+                return bk[x];
+            });
+
+            if (bad.length) {
+                S.msg = ['bad', 'Seat unavailable: ' + bad.join(', ')];
+                S.seats = [];
+            }
+            else {
+                S.hold = Date.now() + HOLD;
+                S.view = 'pay';
+            }
+        }
+    }
+
+    else if (a === 'pm') {
+        S.pm = v;
+    }
+
+    else if (a === 'seatsback') {
+        clearInterval(timer);
+        S.view = 'seats';
+    }
+
+    else if (a === 'paygo') {
+        clearInterval(timer);
+
+        if (v === 'fail') {
+            S.seats = [];
+            S.msg = ['bad', 'Simulated payment failed. Seats were released. You can try again.'];
+            S.view = 'seats';
+        }
+        else {
+            confirmBooking();
+        }
+    }
+
+    else if (a === 'cancel') {
+        sync();
+
+        var b = DB.bookings.filter(function(x) {
+            return x.id === v;
+        })[0];
+
+        if (b) {
+            var r = refund(b);
+
+            if (!r.ok) {
+                S.msg = ['bad', r.rule];
+            }
+            else {
+                b.status = 'CANCELLED';
+                b.refund = r.amt;
+                save();
+                S.msg = ['ok', 'Booking ' + b.id +
+                    ' cancelled. Seats released. ' + r.rule +
+                    '. Simulated refund ₹' + r.amt + '.'];
+            }
+        }
+    }
+
+    render();
+});
+
+load();
+render();
+
+})();
+</script>
+</body>
+</html>
